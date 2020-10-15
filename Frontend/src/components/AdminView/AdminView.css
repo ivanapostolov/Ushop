@@ -1,0 +1,48 @@
+.admin {
+    flex: 1 0 auto;
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.admin__optionsContainer {
+    background-color: #314152;
+    padding-top: 1rem;
+    /*border-top: 1rem solid white;*/
+}
+
+.admin__formContainer {
+    padding: 1rem;
+    flex-grow: 1;
+    background-color: #EEEEEE;
+}
+
+.admin__options {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    font-size: 1.6rem;
+}
+
+.admin__optionsTitle {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    color: #EEEEEE;
+    margin: 1rem 0rem;
+}
+
+.admin__option {
+    padding: 1rem 8rem;
+    background-color: #314152;
+    color: #BDBDBD;
+    border: none;
+    cursor: pointer;
+}
+
+.admin__option.active {
+    background-color: #AD1457;
+    color: white;
+    border-left: 0.5rem solid white;
+}
+
+.admin__option:hover {}

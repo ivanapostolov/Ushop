@@ -1,0 +1,47 @@
+.shop {
+    flex: 1 0 auto;
+}
+
+.shop__filter {
+    width: 100%;
+}
+
+.filter__list {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.filter__button {
+    height: 100%;
+    padding: 1rem;
+    border: 0.1rem solid #eeeeee;
+}
+
+.filter__options {
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    overflow: scroll;
+    border: 0.1rem solid black;
+}
+
+.filter__option {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    margin: 0rem 1rem;
+}
+
+.filter__option input[type="checkbox"] {
+    margin: 1rem;
+}
+
+.shop__productsContainer {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
