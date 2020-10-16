@@ -56,9 +56,9 @@ const initialize = async () => {
 
     await db.insert('Items', [1, 'Black Shirt  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget velit nisi. Nunc malesuada ut velit ut tincidunt. Mauris ultricies in sem id varius. Nam finibus sapien eget nulla eleifend pharetra.', 15, 'man', 'L', 'Stuff', 'US Polo', 'Black', 21.99]);
     await db.insert('Items', [1, 'Blue Shirt', 15, 'man', 'L', 'Stuff', 'US Polo', 'Black', 21.99]);
-    await db.insert('Items', [1, 'Summer Shirt', 15, 'man', 'L', 'Stuff', 'US Polo', 'Black', 21.99]);
-    await db.insert('Items', [1, 'Winter Shirt', 15, 'man', 'L', 'Stuff', 'US Polo', 'Black', 21.99]);
-    await db.insert('Items', [1, 'Spring Shirt', 15, 'man', 'L', 'Stuff', 'US Polo', 'Black', 21.99]);
+    await db.insert('Items', [1, 'Summer Shirt', 15, 'man', 'L', 'Stuff', 'zara', 'Black', 21.99]);
+    await db.insert('Items', [1, 'Winter Shirt', 15, 'man', 'L', 'Stuff', 'h&mo', 'Black', 21.99]);
+    await db.insert('Items', [1, 'Spring Shirt', 15, 'man', 'L', 'Stuff', 'zara', 'Black', 21.99]);
     await db.insert('Items', [1, 'Colorful Shirt', 15, 'man', 'L', 'Stuff', 'US Polo', 'Black', 21.99]);
   } catch (e) {
     throw e;

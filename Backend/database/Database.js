@@ -125,6 +125,15 @@ class Databse {
         }];
     }
 
+    async sendDBQuery(query) {
+        try {
+            return await pool.query(query);
+        } catch (e) {
+            console.log(e);
+            throw new Error(`Error occured while executing SQL query: ${JSON.stringify(query)}`);
+        }
+    }
+
     async create(table) {
         const sql = `CREATE TABLE ${table.name}(${table.columns.map(e => e.name + ' ' + e.type + ' ' + e.rules + ', ').reduce((a, b) => a + b).slice(0, -2)});`;
 

@@ -1,27 +1,67 @@
 import React, { useState, setState } from 'react'
 import './SignForm.css'
-import { Route, Link, useHistory } from 'react-router-dom'
+import { Route, Link, useHistory, Switch } from 'react-router-dom'
 import { useStateValue } from '../StateProvider';
 
 function SignUp() {
-    const { firstName } = useState('');
-    const { lastName } = useState('');
+    const history = useHistory();
+    const [state, dispatch] = useStateValue();
+
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const request = async (url) => {
+        const body = {
+            fname: firstName,
+            lname: lastName,
+            mail: email,
+            pass: password
+        }
+
+        const parameters = {
+            method: 'post',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        }
+
+        try {
+            const response = await fetch(url, parameters);
+
+            if (response.status === 200) {
+                return (await response.json());
+            } else {
+                throw new Error(`Status code ${response.status}`);
+            }
+        } catch (e) {
+            throw new Error(e.message);
+        }
+    }
+
+    const requestHandler = (e) => {
+        e.preventDefault();
+
+        request(state.baseUrl + 'auth/sign-up').then(response => {
+            history.push('/sign-in');
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
     return (
-        <form className="form">
+        <form className="form" onSubmit={requestHandler}>
             <ul className="form__fieldsList">
                 <li>
                     <div className="form__title">Sign up</div>
                 </li>
                 <li>
                     <label>First Name</label>
-                    <input value={firstName} type="text" onChange={event => setEmail(event.target.value)} />
+                    <input value={firstName} type="text" onChange={event => setFirstName(event.target.value)} />
                 </li>
                 <li>
                     <label>Last Name</label>
-                    <input value={lastName} type="text" onChange={event => setEmail(event.target.value)} />
+                    <input value={lastName} type="text" onChange={event => setLastName(event.target.value)} />
                 </li>
                 <li>
                     <label>Email</label>
@@ -125,8 +165,10 @@ function SignIn() {
 function SignForm() {
     return (
         <main className="sign">
-            <Route path="/sign-up" exact={true} component={SignUp} />
-            <Route path="/sign-in" exact={true} component={SignIn} />
+            <Switch>
+                <Route path="/sign-up" exact={true} component={SignUp} />
+                <Route path="/sign-in" exact={true} component={SignIn} />
+            </Switch>
         </main>
     );
 }

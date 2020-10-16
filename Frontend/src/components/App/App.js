@@ -23,6 +23,10 @@ function App() {
             <SignForm />
             <Footer />
           </Route>
+          <Route path="/sign-up">
+            <SignForm />
+            <Footer />
+          </Route>
           <Route path="/admin">
             <AdminView />
           </Route>

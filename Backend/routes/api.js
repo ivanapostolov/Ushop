@@ -124,6 +124,32 @@ router.get('/products', async (request, response) => {
     try {
         const res = await db.select('Items', [], conditions);
 
+        console.log(conditions);
+
+        /*let sql = `SELECT * FROM Items`;
+
+        if (conditions.length > 0) {
+            sql += ' WHERE ';
+
+            conditions.forEach(e => {
+                Object.values(e)[0].split(",").forEach(el => {
+                    sql += `${Object.keys(e)[0]}=${el} OR`
+                });
+
+                sql = sql.substring(0, sql.length - 2);
+
+                sql += "AND ";
+            });
+
+            sql = sql.substring(0, sql.length - 4);
+        }
+
+        console.log(sql);*/
+
+        //const sql = `SELECT * FROM Items WHERE`
+
+        //const res = db.sendDBQuery()
+
         response.status(200).json(res.rows);
     } catch (e) {
         console.error(e.message);

@@ -24,7 +24,7 @@ const reducer = (state, action) => {
 
             const index = state.basket.findIndex(basketItem => (
                 basketItem.id === action.id
-            ))
+            ));
 
             if (index >= 0) {
                 newBasket.splice(index, 1)
@@ -33,6 +33,12 @@ const reducer = (state, action) => {
             return { ...state, basket: newBasket }
             break;
         case 'ADD_FILTER':
+            return {
+                ...state,
+                filters: [...state.filters, action.filter]
+            };
+            break;
+        case 'REMOVE_FILTER':
             return {
                 ...state,
                 filters: [...state.filters, action.filter]

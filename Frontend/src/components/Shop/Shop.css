@@ -1,47 +1,57 @@
 .shop {
     flex: 1 0 auto;
-}
-
-.shop__filter {
-    width: 100%;
-}
-
-.filter__list {
     display: flex;
     flex-direction: row;
-    justify-content: center;
 }
 
-.filter__button {
-    height: 100%;
-    padding: 1rem;
-    border: 0.1rem solid #eeeeee;
-}
-
-.filter__options {
-    margin: 0;
-    width: 100%;
+.shop__filters {
     display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-    overflow: scroll;
-    border: 0.1rem solid black;
+    flex-direction: column;
+    align-items: center;
+    border-right: 0.1rem solid #ededed;
 }
 
-.filter__option {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    margin: 0rem 1rem;
-}
-
-.filter__option input[type="checkbox"] {
+.filters__toggle {
+    display: none;
+    padding: 1rem 3rem;
     margin: 1rem;
+    background-color: #314152;
+    color: white;
+    border: none;
+    font-size: 1.6rem;
+}
+
+.filters__anchor {
+    width: 100%;
+}
+
+.filters__dropdown {
+    width: 30rem;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
 }
 
 .shop__productsContainer {
-    width: 100%;
+    flex-grow: 1;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+@media screen and (max-width: 600px) {
+    .shop {
+        flex-direction: column;
+    }
+    .filters__toggle {
+        display: block;
+    }
+    .filters__dropdown {
+        width: 100%;
+        position: absolute;
+        z-index: 2;
+    }
+    .filters__dropdown.hidden {
+        display: none;
+    }
 }
