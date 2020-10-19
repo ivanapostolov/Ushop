@@ -21,7 +21,7 @@ class CheckBox extends React.Component {
         return (
             <div className="checkbox">
                 <input type="checkbox" onChange={this.handleChange} checked={this.state.checked} />
-                <laber>{this.props.option}</laber>
+                <span>{this.props.option}</span>
             </div>
         );
     }
@@ -36,27 +36,15 @@ class Filter extends React.Component {
     static contextType = StateContext;
 
     updateFilter(filter) {
-        if (filter.active) {
-            /*this.context[1]({
-                type: 'ADD_FILTER',
-                filter: { [this.props.title]: filter.option }
-            });*/
-        } else {
-            //alert('not active');
-        }
-
-        let obj = {};
-        obj[this.props.title] = filter.option;
-
-        this.props.callback(obj);
+        this.props.callback({ name: this.props.name, option: filter.option, active: filter.active });
     }
 
     render() {
         return (
             <div className="filter">
-                <div className="filter__title">{this.props.title}</div>
+                <div className="filter__title">{this.props.name}</div>
                 <div className="filter__content">
-                    {this.props.options.map(e => <CheckBox callback={this.updateFilter} option={e} />)}
+                    {this.props.options.map((e, i) => <CheckBox key={i} callback={this.updateFilter} option={e} />)}
                 </div>
             </div>
         );

@@ -6,6 +6,7 @@
     cursor: pointer;
     background-color: white;
     border: 0.2rem solid #f0f0f0;
+    color: black;
 }
 
 .product__wrapper {

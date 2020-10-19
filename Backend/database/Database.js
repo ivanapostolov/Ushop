@@ -17,7 +17,12 @@ const sendDBQuery = async (query) => {
     }
 }
 
-class Databse {
+class Database {
+    constructor() {
+        this.sql = '';
+        this.params = [];
+    }
+
     get tables() {
         return [{
             name: 'Categories',
@@ -27,7 +32,7 @@ class Databse {
                 rules: 'PRIMARY KEY',
             }, {
                 name: 'Name',
-                type: 'VARCHAR(255)',
+                type: 'TEXT',
                 rules: 'NOT NULL',
             }],
         }, {
@@ -42,13 +47,13 @@ class Databse {
                 rules: 'NOT NULL',
             }, {
                 name: 'Name',
-                type: 'VARCHAR(255)',
+                type: 'TEXT',
                 rules: 'NOT NULL',
             }, {
                 name: 'Amount',
                 type: 'INT',
                 rules: 'NOT NULL',
-            }, {
+            }, /*{
                 name: 'Gender',
                 type: 'VARCHAR(255)',
                 rules: 'NOT NULL',
@@ -68,6 +73,11 @@ class Databse {
                 name: 'Color',
                 type: 'VARCHAR(255)',
                 rules: 'NOT NULL',
+            },*/
+            {
+                name: 'Description',
+                type: 'JSON',
+                rules: 'NOT NULL'
             }, {
                 name: 'Price',
                 type: 'FLOAT',
@@ -81,7 +91,7 @@ class Databse {
                 rules: 'PRIMARY KEY',
             }, {
                 name: 'UserEmail',
-                type: 'VARCHAR(255)',
+                type: 'TEXT',
                 rules: 'NOT NULL',
             }],
         }, {
@@ -103,35 +113,26 @@ class Databse {
             name: 'Users',
             columns: [{
                 name: 'Email',
-                type: 'VARCHAR(255)',
+                type: 'TEXT',
                 rules: 'PRIMARY KEY',
             }, {
                 name: 'Password',
-                type: 'VARCHAR(255)',
+                type: 'TEXT',
                 rules: 'NOT NULL',
             }, {
                 name: 'Salt',
-                type: 'VARCHAR(255)',
+                type: 'TEXT',
                 rules: 'NOT NULL',
             }, {
                 name: 'FirstName',
-                type: 'VARCHAR(255)',
+                type: 'TEXT',
                 rules: 'NOT NULL',
             }, {
                 name: 'LastName',
-                type: 'VARCHAR(255)',
+                type: 'TEXT',
                 rules: 'NOT NULL',
             }],
         }];
-    }
-
-    async sendDBQuery(query) {
-        try {
-            return await pool.query(query);
-        } catch (e) {
-            console.log(e);
-            throw new Error(`Error occured while executing SQL query: ${JSON.stringify(query)}`);
-        }
     }
 
     async create(table) {
@@ -188,23 +189,116 @@ class Databse {
 
             return await sendDBQuery({ text: sql, values: values });
         } catch (e) {
-            //console.error({ Error: e.message });
+            console.error({ Error: e.message });
 
-            throw new Error(e.message);
+            //throw new Error(e.message);
         }
     }
 
-    async select(table, columns, conditions) {
-        if (this.tables.map(e => e.name).includes(table)) {
-            let sql = `SELECT ${Array.isArray(columns) && columns.length ? columns.reduce((a, b) => a + ', ' + b) : '*'} FROM ${table}`;
+    async send() {
+        try {
+            const response = await pool.query({ text: this.sql, values: this.params });
 
-            if (Array.isArray(conditions) && conditions.length > 0) {
-                sql += ' WHERE ' + conditions.map((e, i) => `${Object.keys(e)[0]} = $${++i}`).reduce((a, b) => `${a} AND ${b}`) + ';';
-            }
+            this.sql = '';
+            this.params = [];
 
-            return await sendDBQuery(Array.isArray(conditions) ? { text: sql, values: conditions.map(e => Object.values(e)[0]) } : sql);
-        } else {
-            console.log({ err: "Error occured while selecting from databse" });
+            return response.rows;
+        } catch (e) {
+            console.error(e);
+
+            throw new Error(`Error occured while executing SQL query: ${JSON.stringify(query)}`);
+        }
+    }
+
+    or_where(conditions) {
+        if (typeof conditions === 'object' && conditions !== null) {
+            this.sql += ` ${this.sql.includes('WHERE') ? 'OR' : 'WHERE'}`;
+
+            Object.keys(conditions).forEach((e, i) => {
+                this.sql += ` ${e}${e.indexOf(' ') >= 0 ? '' : ' ='} $${i + this.params.length + 1} OR`;
+            });
+
+            this.sql = this.sql.substring(0, this.sql.lastIndexOf(' '));
+
+            this.params = this.params.concat(Object.values(conditions));
+        }
+
+        return this;
+    }
+
+    where_in(conditions) {
+        if (typeof conditions === 'object' && conditions !== null) {
+            this.sql += ` ${this.sql.includes('WHERE') ? 'AND' : 'WHERE'}`;
+
+            const index = this.params.length + 1;
+
+            Object.keys(conditions).forEach((e, i) => {
+                this.sql += ` ${e} IN (${conditions[e].map((a, i) => '$' + (i + index))}) AND`;
+            });
+
+            this.sql = this.sql.substring(0, this.sql.lastIndexOf(' '));
+
+            this.params = this.params.concat(Object.values(conditions).reduce((a, e) => a.concat(e), []));
+        }
+
+        console.log(this.sql);
+
+        return this;
+    }
+
+    where(conditions) {
+        if (typeof conditions === 'object' && conditions !== null) {
+            this.sql += ' WHERE';
+
+            Object.keys(conditions).forEach((e, i) => {
+                this.sql += ` ${e}${e.indexOf(' ') >= 0 ? '' : ' ='} $${i + this.params.length + 1} AND`;
+            });
+
+            this.sql = this.sql.substring(0, this.sql.lastIndexOf(' '));
+
+            this.params = this.params.concat(Object.values(conditions));
+        }
+
+        return this;
+    }
+
+    from(tables) {
+        if (typeof tables === 'string') {
+            tables = tables.split(',').map(e => e.trim());
+        }
+
+        if (Array.isArray(tables)) {
+            this.sql += ' FROM';
+
+            this.sql += tables.reduce((a, e) => a + ` ${e},`, '').slice(0, -1);
+
+            return this;
+        }
+    }
+
+    as(alias) {
+        this.sql += ` AS ${alias}`;
+
+        return this;
+    }
+
+    distinct() {
+        this.sql = this.sql.replace('SELECT', 'SELECT DISTINCT');
+
+        return this;
+    }
+
+    select(fields) {
+        if (typeof fields === 'string') {
+            fields = fields.split(',').map(e => e.trim());
+        }
+
+        if (Array.isArray(fields)) {
+            this.sql = 'SELECT';
+
+            this.sql += fields.reduce((a, e) => a + ` ${e},`, '').slice(0, -1);
+
+            return this;
         }
     }
 
@@ -231,4 +325,4 @@ class Databse {
     }
 }
 
-module.exports = Databse;
+module.exports = Database;

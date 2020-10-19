@@ -7,6 +7,7 @@ const multer = require('multer');
 const assetsPath = `${__dirname}/../assets/`;
 const upload = multer({ dest: assetsPath });
 const fs = require('fs');
+const { response } = require("express");
 
 const db = new Database();
 
@@ -64,9 +65,9 @@ const authorize = (request, response, next) => {
 
 router.get('/categories', async (request, response) => {
     try {
-        const res = await db.select('Categories');
+        const res = await db.select('*').from('Categories').send();
 
-        response.status(200).json(res.rows);
+        response.status(200).json(res);
     } catch (e) {
         console.error(e.message);
 
@@ -78,9 +79,11 @@ router.get('/category/:id', async (request, response) => {
     try {
         const id = request.params.id;
 
-        const res = await db.select('Categories', [], [{ Id: id }]);
+        const res = await db.select('*').from('Categories').where({ Id: id }).send();
 
-        response.status(200).json(res.rows[0]);
+        console.log(res);
+
+        response.status(200).json(res[0]);
     } catch (e) {
         console.error(e);
 
@@ -118,39 +121,55 @@ router.post('/category', upload.single('img'), authorize, async (request, respon
     }
 });
 
-router.get('/products', async (request, response) => {
-    const conditions = Object.keys(request.query).map(e => { const o = {}; o[e] = request.query[e]; return o; });
+router.get('/filters/:categoryid', async (request, response) => {
+    try {
+        const id = request.params.categoryid;
+
+        const descriptions = await db.select('description').from('Items').where({ CategoryId: id }).send();
+    } catch (e) {
+        console.error(e.message);
+
+        response.status(500).json({ error: "Internal server error" });
+    }
+});
+
+router.get('/product/:id', async (request, response) => {
+    try {
+        const item = await db.select('*').from('Items').where({ id: request.params.id }).send();
+
+        response.status(200).json(item);
+    } catch (e) {
+        console.error(e.message);
+
+        response.status(500).json({ error: "Internal server error" });
+    }
+})
+
+router.post('/products', async (request, response) => {
+    const filters = request.body;
 
     try {
-        const res = await db.select('Items', [], conditions);
+        const items = await db.select('*').from('Items').send();
 
-        console.log(conditions);
+        const descriptions = items.map(e => e.description);
 
-        /*let sql = `SELECT * FROM Items`;
+        let resIndex = items.map(e => true);
 
-        if (conditions.length > 0) {
-            sql += ' WHERE ';
+        for (const key in filters) {
+            let i = 0;
 
-            conditions.forEach(e => {
-                Object.values(e)[0].split(",").forEach(el => {
-                    sql += `${Object.keys(e)[0]}=${el} OR`
-                });
+            for (const value of descriptions) {
+                if (!value[key].split(',').some(e => filters[key].includes(e))) {
+                    resIndex[i] = false;
+                }
 
-                sql = sql.substring(0, sql.length - 2);
-
-                sql += "AND ";
-            });
-
-            sql = sql.substring(0, sql.length - 4);
+                i++;
+            }
         }
 
-        console.log(sql);*/
+        const res = items.filter((e, i) => resIndex[i]);
 
-        //const sql = `SELECT * FROM Items WHERE`
-
-        //const res = db.sendDBQuery()
-
-        response.status(200).json(res.rows);
+        response.status(200).json(res);
     } catch (e) {
         console.error(e.message);
 

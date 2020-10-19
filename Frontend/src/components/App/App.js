@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { BrowserRouter as Router, Switch, Route, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Header from '../Header/Header';
 import Home from '../Home/Home';
 import Footer from '../Footer/Footer';
@@ -8,6 +8,22 @@ import Checkout from '../Checkout/Checkout';
 import SignForm from '../SignForm/SignForm';
 import AdminView from '../AdminView/AdminView';
 import Shop from '../Shop/Shop';
+import Product from '../Product/Product'
+
+class comp extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <div>
+        <Header />
+        <Product id={this.props} />
+        <Footer />
+      </div>
+    );
+  }
+}
 
 function App() {
   return (
@@ -30,15 +46,12 @@ function App() {
           <Route path="/admin">
             <AdminView />
           </Route>
-          <Route path="/shop">
+          <Route path="/shop/">
             <Header />
             <Shop />
             <Footer />
           </Route>
-          <Route path="/product/:id">
-            <Header />
-            <Shop />
-            <Footer />
+          <Route path="/product/:id" component={params => <div className="app"><Header /><Product id={params.match.params.id} /><Footer /></div>}>
           </Route>
           <Route path="/">
             <Header />

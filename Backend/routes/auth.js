@@ -13,7 +13,10 @@ let refreshTokens = [];
 
 const authenticate = async (email, password) => {
     if (await db.doesUserExist(email)) {
-        const user = (await db.select("Users", null, [{ Email: email }])).rows[0];
+        const user = (await db.select("Password, Salt").from('Users').where({ Email: email }).send())[0];
+        //const user = (await db.select("Users", null, [{ Email: email }])).rows[0];
+
+        console.log(user.password + ' Sample ' + hs.hash(password, user.salt));
 
         return hs.compare(user.password, user.salt, password);
     } else {
@@ -38,14 +41,13 @@ router.post("/sign-in", async (request, response) => {
             const refreshToken = generateRefreshToken(mail);
 
             refreshTokens.push(refreshToken);
-
-            const record = await db.select('Users', ['FirstName', 'LastName'], [{ Email: mail }]);
+            const record = (await db.select('FirstName, LastName').from('Users').where({ Email: mail }).send())[0];
 
             response.status(200).json({
                 accessToken: accessToken,
                 refreshToken: refreshToken,
-                firstName: record.rows[0].firstname,
-                lastName: record.rows[0].lastname
+                firstName: record.firstname,
+                lastName: record.lastname
             });
         } else {
             response.status(401).json({ error: 'Invalid user email or password' });

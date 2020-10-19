@@ -1,38 +1,76 @@
 import React from 'react';
 import './Product.css';
-import { useStateValue } from '../StateProvider';
+import { StateContext } from '../StateProvider';
 
-function Product({ id, name, imageUrl, price, amount }) {
-    const [{ basket }, dispatch] = useStateValue();
+class Product extends React.Component {
+    constructor(props) {
+        super(props);
 
-    const addToBasket = () => {
+        this.state = { product: {}, color: '' };
+
+        this.addToBasket = this.addToBasket.bind(this);
+
+        this.selectColor = this.selectColor.bind(this);
+    }
+
+    static contextType = StateContext;
+
+    componentDidMount() {
+        const url = `${this.context[0].baseUrl}api/product/${this.props.id}`;
+
+        fetch(url, { method: 'GET', headers: { Accept: 'application/json' } }).then(response => {
+            return response.json();
+        }).then(data => {
+            console.log(data);
+            this.setState({ product: data[0] })
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    addToBasket() {
+        const dispatch = this.context[1];
+
         dispatch({
             type: 'ADD_TO_BASKET',
             item: {
-                id: id,
-                name: name,
-                imageUrl: imageUrl,
-                price: price
+                id: this.props.id,
+                name: this.state.product.name,
+                imageUrl: `${this.context[0].baseUrl}product${this.props.id}.png`,
+                price: this.state.product.price
             }
         });
     }
 
-    return (
-        <div className="product">
-            <div className="product-info">
-                <p className="product-name">{name}</p>
-                <p className="product-price">${price}</p>
+    selectColor(e) {
+        this.setState({ color: e.target.value });
+    }
+
+    render() {
+        return (
+            <div className="productView">
+                <div className="productView__layout">
+                    <div className="layout__wrapper" style={{ backgroundImage: `url(${this.context[0].baseUrl}product${this.props.id}.png)` }}>
+                        <img className="layout__image" src={`${this.context[0].baseUrl}product${this.props.id}.png`} />
+                    </div>
+                    <div className="layout__info">
+                        <div className="info__title">
+                            {this.state.product.name}
+                        </div>
+                        <div className="info__price">
+                            ${this.state.product.price} {this.state.color}
+                        </div>
+                        <select onChange={this.selectColor} value={this.state.color}>
+                            <option value="Black">Black</option>
+                            <option value="Grey">Grey</option>
+                            <option value="Red">Red</option>
+                        </select>
+                        <button className="add__button" onClick={this.addToBasket}>Add to basket</button>
+                    </div>
+                </div>
             </div>
-            <div className="product-image-wrapper" style={{ backgroundImage: `url(${imageUrl})` }}>
-                <img
-                    className="product-image-content"
-                    src={imageUrl}
-                    alt="Product"
-                />
-            </div>
-            <button className="product-button" onClick={addToBasket}>Add to basket</button>
-        </div>
-    );
+        );
+    }
 }
 
 export default Product;
