@@ -8,41 +8,51 @@ class Shop extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { categoryid: '', products: [], filters: {}, toggle: false };
+        this.state = { categoryid: '', products: [], availableFilters: {}, appliedFilters: {}, toggle: false };
 
         this.updateProducts = this.updateProducts.bind(this);
-
-        this.requestProducts = this.requestProducts.bind(this);
     }
 
     static contextType = StateContext;
 
     componentDidMount() {
-        this.requestProducts();
+        this.request('products');
+
+        this.request('filters');
     }
 
-    requestProducts() {
-        const url = 'http://localhost:8000/api/products';
+    fetch(url, prop) {
+        const params = {
+            method: 'GET',
+            headers: { "Content-Type": "application/json" }
+        };
 
-        const parameters = {
-            method: 'post',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(this.state.filters)
-        }
-
-        fetch(url, parameters).then(response => {
+        fetch(url, params).then(response => {
             return response.json();
         }).then(data => {
-            this.setState({ products: data.error ? [] : data })
+            this.setState({ [prop]: data.error ? [] : data });
         }).catch(err => {
             console.log(err);
         });
     }
 
-    updateProducts(filter) {
-        let update = this.state.filters;
+    request(resource) {
+        switch (resource) {
+            case 'products':
+                this.fetch(`${this.context[0].baseUrl}api/products/${btoa(JSON.stringify({ categoryId: this.props.id, filters: this.state.appliedFilters }))}`, 'products');
+                break;
+            case 'filters':
+                this.fetch(`${this.context[0].baseUrl}api/filters/${this.props.id}`, 'availableFilters');
+                break;
+            default:
+                break;
+        }
+    }
 
-        if (typeof this.state.filters[filter.name] === 'undefined') {
+    updateProducts(filter) {
+        let update = this.state.appliedFilters;
+
+        if (typeof this.state.appliedFilters[filter.name] === 'undefined') {
             update[filter.name] = [];
         }
 
@@ -52,12 +62,14 @@ class Shop extends React.Component {
             delete update[filter.name];
         }
 
-        this.setState({ filters: update }, () => {
-            this.requestProducts();
+        this.setState({ appliedFilters: update }, () => {
+            this.request('products');
         });
     }
 
     render() {
+        const filters = Object.keys(this.state.availableFilters).map((e, i) => <Filter key={i} callback={this.updateProducts} name={e} options={this.state.availableFilters[e]} />);
+
         const productsList = this.state.products ? this.state.products.map(e => <Product key={e.id} id={e.id} imageUrl={`${this.context[0].baseUrl}product${e.id}.png`} name={e.name} price={e.price} />) : '';
 
         return (
@@ -66,9 +78,7 @@ class Shop extends React.Component {
                     <button className="filters__toggle" onClick={() => this.setState({ toggle: !this.state.toggle })}>Filters</button>
                     <div className="filters__anchor">
                         <div className={`filters__dropdown ${this.state.toggle ? "" : 'hidden'}`}>
-                            <Filter callback={this.updateProducts} name="brand" options={['nike', 'us polo', 'zara', 'h&m', 'teodor']} />
-                            <Filter callback={this.updateProducts} name="material" options={['silk', 'cutton', 'polyester', 'spandex', 'teodor']} />
-                            <Filter callback={this.updateProducts} name="size" options={['L', 'M', 'S', 'XS', 'XL']} />
+                            {filters}
                         </div>
                     </div>
                 </div>

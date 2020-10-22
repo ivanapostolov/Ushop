@@ -81,8 +81,6 @@ router.get('/category/:id', async (request, response) => {
 
         const res = await db.select('*').from('Categories').where({ Id: id }).send();
 
-        console.log(res);
-
         response.status(200).json(res[0]);
     } catch (e) {
         console.error(e);
@@ -121,11 +119,37 @@ router.post('/category', upload.single('img'), authorize, async (request, respon
     }
 });
 
-router.get('/filters/:categoryid', async (request, response) => {
+router.get('/products/:filters', async (request, response) => {
     try {
-        const id = request.params.categoryid;
+        const decodedFilters = JSON.parse(Buffer.from(request.params.filters, 'base64').toString());
 
-        const descriptions = await db.select('description').from('Items').where({ CategoryId: id }).send();
+        const { categoryId, filters } = decodedFilters;
+
+        let condition = {};
+
+        for (const key in filters) {
+            if (key === 'size' || key === 'color') {
+                condition[`${key}`] = filters[key];
+            } else {
+                condition[`description ->> '${key}'`] = filters[key];
+            }
+        }
+
+        //const items = await db.select('*').from('Items FULL JOIN ItemVariations ON Items.id = ItemVariations.ItemId');
+
+        if (!isUndefined(filters.size) || !isUndefined(filters.color)) {
+            db.select('*').from('Items FULL JOIN ItemVariations ON Items.id = ItemVariations.ItemId');
+        } else {
+            db.select('*').from("Items");
+        }
+
+        let items = await db.where({ CategoryId: categoryId }).where_in(condition).send();
+
+        //const ids = items.map(e => e.id).reduce((unique, item) => unique.includes(item) ? unique : [...unique, item], []);
+
+        items = await db.select('*').from("Items").where_in({ Id: [...new Set(items.map(e => e.id))] }).send();
+
+        response.status(200).json(items);
     } catch (e) {
         console.error(e.message);
 
@@ -135,41 +159,46 @@ router.get('/filters/:categoryid', async (request, response) => {
 
 router.get('/product/:id', async (request, response) => {
     try {
-        const item = await db.select('*').from('Items').where({ id: request.params.id }).send();
+        let item = await db.select('*').from('Items').where({ id: request.params.id }).send();
 
+        item[0].size = (await db.select('size').distinct().from('ItemVariations').where({ ItemId: request.params.id }).send()).map(e => e.size);
+        item[0].color = (await db.select('color').distinct().from('ItemVariations').where({ ItemId: request.params.id }).send()).map(e => e.color);
         response.status(200).json(item);
     } catch (e) {
         console.error(e.message);
 
         response.status(500).json({ error: "Internal server error" });
     }
-})
+});
 
-router.post('/products', async (request, response) => {
-    const filters = request.body;
-
+router.get('/filters/:categoryid', async (request, response) => {
     try {
-        const items = await db.select('*').from('Items').send();
+        const id = request.params.categoryid;
 
-        const descriptions = items.map(e => e.description);
+        const descriptions = (await db.select('description').from('Items').where({ CategoryId: id }).send()).map(e => e.description);
 
-        let resIndex = items.map(e => true);
+        let keys = [];
 
-        for (const key in filters) {
-            let i = 0;
+        descriptions.forEach(e => keys.push(...Object.keys(e).filter(k => !keys.includes(k))));
 
-            for (const value of descriptions) {
-                if (!value[key].split(',').some(e => filters[key].includes(e))) {
-                    resIndex[i] = false;
-                }
+        let filters = {};
 
-                i++;
-            }
+        for (const key of keys) {
+            filters[key] = (await db.select(`description ->> '${key}'`).as(key).distinct().from('Items').where({ CategoryId: id }).send()).map(e => e[key]).filter(e => e !== null);
         }
 
-        const res = items.filter((e, i) => resIndex[i]);
+        filters.size = (await db.select('size').distinct().from('ItemVariations INNER JOIN Items ON ItemVariations.ItemId = Items.Id').where({ CategoryId: id }).send()).map(e => e.size)
+        filters.color = (await db.select('color').distinct().from('ItemVariations INNER JOIN Items ON ItemVariations.ItemId = Items.Id').where({ CategoryId: id }).send()).map(e => e.color)
 
-        response.status(200).json(res);
+        if (filters.size.length === 0) {
+            delete filters.size;
+        }
+
+        if (filters.color.length === 0) {
+            delete filters.color;
+        }
+
+        response.status(200).json(filters);
     } catch (e) {
         console.error(e.message);
 

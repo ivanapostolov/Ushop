@@ -20,3 +20,8 @@ th {
     background-color: #EEEEEE;
     color: black;
 }
+
+.checkout__total {
+    align-self: flex-start;
+    margin: 2rem 10%;
+}

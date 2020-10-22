@@ -46,10 +46,7 @@ function App() {
           <Route path="/admin">
             <AdminView />
           </Route>
-          <Route path="/shop/">
-            <Header />
-            <Shop />
-            <Footer />
+          <Route path="/shop/:categoryid" component={params => <div className="app"><Header /><Shop id={params.match.params.categoryid} /><Footer /></div>}>
           </Route>
           <Route path="/product/:id" component={params => <div className="app"><Header /><Product id={params.match.params.id} /><Footer /></div>}>
           </Route>

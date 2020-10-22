@@ -15,7 +15,7 @@ class CategoryPin extends React.Component {
 
     render() {
         return (
-            <Link to="/shop" className="category" onClick={this.handleClick}>
+            <Link to={`/shop/${this.props.id}`} className="category" onClick={this.handleClick}>
                 <div className="category__wrapper" style={{ backgroundImage: `url(${this.props.imageUrl})` }}>
                     <img className="category__image" src={this.props.imageUrl} alt="Category" />
                 </div>

@@ -49,11 +49,11 @@ class Database {
                 name: 'Name',
                 type: 'TEXT',
                 rules: 'NOT NULL',
-            }, {
+            }, /*{
                 name: 'Amount',
                 type: 'INT',
                 rules: 'NOT NULL',
-            }, /*{
+            }, {
                 name: 'Gender',
                 type: 'VARCHAR(255)',
                 rules: 'NOT NULL',
@@ -92,6 +92,25 @@ class Database {
             }, {
                 name: 'UserEmail',
                 type: 'TEXT',
+                rules: 'NOT NULL',
+            }],
+        }, {
+            name: 'ItemVariations',
+            columns: [{
+                name: 'ItemId',
+                type: 'INT',
+                rules: 'NOT NULL',
+            }, {
+                name: 'Color',
+                type: 'TEXT',
+                rules: 'NOT NULL',
+            }, {
+                name: 'Size',
+                type: 'TEXT',
+                rules: 'NOT NULL',
+            }, {
+                name: 'Quantity',
+                type: 'INT',
                 rules: 'NOT NULL',
             }],
         }, {
@@ -230,15 +249,13 @@ class Database {
         if (typeof conditions === 'object' && conditions !== null) {
             this.sql += ` ${this.sql.includes('WHERE') ? 'AND' : 'WHERE'}`;
 
-            const index = this.params.length + 1;
-
             Object.keys(conditions).forEach((e, i) => {
-                this.sql += ` ${e} IN (${conditions[e].map((a, i) => '$' + (i + index))}) AND`;
+                this.sql += ` ${e} IN (${conditions[e].map((a, i) => '$' + (i + this.params.length + 1))}) AND`;
+
+                this.params.push(...conditions[e]);
             });
 
             this.sql = this.sql.substring(0, this.sql.lastIndexOf(' '));
-
-            this.params = this.params.concat(Object.values(conditions).reduce((a, e) => a.concat(e), []));
         }
 
         console.log(this.sql);
@@ -295,6 +312,7 @@ class Database {
 
         if (Array.isArray(fields)) {
             this.sql = 'SELECT';
+            this.params = [];
 
             this.sql += fields.reduce((a, e) => a + ` ${e},`, '').slice(0, -1);
 

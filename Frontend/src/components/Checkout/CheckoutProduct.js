@@ -2,7 +2,7 @@ import React from 'react';
 import './CheckoutProduct.css'
 import { useStateValue } from '../StateProvider'
 
-function CheckoutProduct({ id, name, imageUrl, price, amount }) {
+function CheckoutProduct({ id, name, imageUrl, price, quantity }) {
     const [state, dispatch] = useStateValue();
 
     const removeFromBasket = () => {
@@ -32,8 +32,8 @@ function CheckoutProduct({ id, name, imageUrl, price, amount }) {
             <td>
                 <div className="checkout-product-price">${price}</div>
             </td>
-            <td>{amount}</td>
-            <td>50</td>
+            <td>{quantity}</td>
+            <td>{Math.round(quantity * price * 100) / 100}</td>
         </tr>
     );
 }

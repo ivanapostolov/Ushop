@@ -6,6 +6,8 @@ import CheckoutProduct from './CheckoutProduct';
 function Checkout() {
     const [{ basket }] = useStateValue();
 
+    const total = Math.round(basket.reduce((a, b) => a += Math.round(b.quantity * b.price * 100) / 100, 0) * 100) / 100;
+
     return (
         <div className="checkout">
             <table>
@@ -27,11 +29,15 @@ function Checkout() {
                             name={item.name}
                             imageUrl={item.imageUrl}
                             price={item.price}
-                            amount="4"
+                            quantity={item.quantity}
                         />
                     ))}
                 </tbody>
             </table>
+
+            <h1 class="checkout__total">
+                Total: ${total}
+            </h1>
         </div>
     );
 }
