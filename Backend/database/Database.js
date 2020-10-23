@@ -229,6 +229,26 @@ class Database {
         }
     }
 
+    join(table, relation, direction) {
+        if (typeof table === 'string' && typeof relation === 'string' && typeof direction === 'string') {
+            this.sql += ` ${direction.toUpperCase()} JOIN ${table} ON ${relation}`;
+        }
+
+        return this;
+    }
+
+    order_by(columns, order) {
+        if (Array.isArray(columns)) {
+            columns = columns.join();
+        }
+
+        if (typeof columns === 'string' && columns !== '') {
+            this.sql = `SELECT * FROM (${this.sql}) ORDER BY ${columns}${typeof order === 'string' ? ' ' + order : ''}`
+        }
+
+        return this;
+    }
+
     or_where(conditions) {
         if (typeof conditions === 'object' && conditions !== null) {
             this.sql += ` ${this.sql.includes('WHERE') ? 'OR' : 'WHERE'}`;
@@ -295,6 +315,12 @@ class Database {
 
     as(alias) {
         this.sql += ` AS ${alias}`;
+
+        return this;
+    }
+
+    distinct_on(column) {
+        this.sql = this.sql.replace('SELECT', `SELECT DISTINCT ON(${column})`);
 
         return this;
     }

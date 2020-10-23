@@ -23,7 +23,7 @@ const reducer = (state, action) => {
             let newBasket = [...state.basket]
 
             const index = state.basket.findIndex(basketItem => (
-                basketItem.id === action.id
+                basketItem.id === action.id && basketItem.variation === action.variation
             ));
 
             if (index >= 0) {

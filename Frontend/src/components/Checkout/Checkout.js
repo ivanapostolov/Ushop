@@ -10,34 +10,21 @@ function Checkout() {
 
     return (
         <div className="checkout">
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Amount</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {basket?.map((item, index) => (
-                        <CheckoutProduct
-                            key={index}
-                            id={item.id}
-                            name={item.name}
-                            imageUrl={item.imageUrl}
-                            price={item.price}
-                            quantity={item.quantity}
-                        />
-                    ))}
-                </tbody>
-            </table>
+            <div className="checkoutProducts">
+                {basket?.map((item, index) => (
+                    <CheckoutProduct
+                        key={index}
+                        id={item.id}
+                        name={item.name}
+                        imageUrl={item.imageUrl}
+                        price={item.price}
+                        quantity={item.quantity}
+                        variation={item.variation}
+                    />
+                ))}
+            </div>
 
-            <h1 class="checkout__total">
-                Total: ${total}
-            </h1>
+            {basket.length > 0 ? <h1 class="checkout__total">Total: <span>${total}</span></h1> : <h1>Basket is empty</h1>}
         </div>
     );
 }

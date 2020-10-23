@@ -6,11 +6,13 @@ class Product extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { product: {}, color: '', quantity: 1 };
+        this.state = { product: {}, color: '', size: '', quantity: 1 };
 
         this.addToBasket = this.addToBasket.bind(this);
 
         this.selectColor = this.selectColor.bind(this);
+
+        this.selectSize = this.selectSize.bind(this);
     }
 
     static contextType = StateContext;
@@ -21,8 +23,7 @@ class Product extends React.Component {
         fetch(url, { method: 'GET', headers: { Accept: 'application/json' } }).then(response => {
             return response.json();
         }).then(data => {
-            console.log(data[0]);
-            this.setState({ product: data[0] })
+            this.setState({ product: data })
         }).catch(err => {
             console.log(err);
         });
@@ -38,13 +39,18 @@ class Product extends React.Component {
                 name: this.state.product.name,
                 imageUrl: `${this.context[0].baseUrl}product${this.props.id}.png`,
                 price: this.state.product.price,
-                quantity: this.state.quantity
+                quantity: this.state.quantity,
+                variation: `Size: ${this.state.size}, Color: ${this.state.color}`
             }
         });
     }
 
     selectColor(e) {
         this.setState({ color: e.target.value });
+    }
+
+    selectSize(e) {
+        this.setState({ size: e.target.value });
     }
 
     render() {
@@ -68,12 +74,14 @@ class Product extends React.Component {
                         <div className="info__multipleChoice">
                             <span>Color</span>
                             <select onChange={this.selectColor} value={this.state.color}>
+                                <option>select</option>
                                 {colorOptions}
                             </select>
                         </div>
                         <div className="info__multipleChoice">
                             <span>Size </span>
-                            <select onChange={this.selectColor} value={this.state.color}>
+                            <select onChange={this.selectSize} value={this.state.size}>
+                                <option>select</option>
                                 {sizeOptions}
                             </select>
                         </div>

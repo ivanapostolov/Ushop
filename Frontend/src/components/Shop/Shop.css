@@ -4,14 +4,22 @@
     flex-direction: row;
 }
 
-.shop__filters {
+.shop__contentModifiers {
     display: flex;
     flex-direction: column;
     align-items: center;
     border-right: 0.1rem solid #ededed;
 }
 
-.filters__toggle {
+.contentModifiers__toggles {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    padding: 0rem 1rem;
+}
+
+.contentModifiers__toggle {
+    flex-basis: calc(50% - 2rem);
     display: none;
     padding: 1rem 3rem;
     margin: 1rem;
@@ -21,11 +29,11 @@
     font-size: 1.6rem;
 }
 
-.filters__anchor {
+.contentModifiers__anchor {
     width: 100%;
 }
 
-.filters__dropdown {
+.contentModifiers__dropdown {
     width: 30rem;
     display: flex;
     flex-direction: column;
@@ -43,15 +51,15 @@
     .shop {
         flex-direction: column;
     }
-    .filters__toggle {
+    .contentModifiers__toggle {
         display: block;
     }
-    .filters__dropdown {
+    .contentModifiers__dropdown {
         width: 100%;
         position: absolute;
         z-index: 2;
     }
-    .filters__dropdown.hidden {
+    .contentModifiers__dropdown.hidden {
         display: none;
     }
 }
