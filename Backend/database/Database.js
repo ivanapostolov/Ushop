@@ -93,6 +93,14 @@ class Database {
                 name: 'UserEmail',
                 type: 'TEXT',
                 rules: 'NOT NULL',
+            }, {
+                name: 'Details',
+                type: 'JSON',
+                rules: 'NOT NULL',
+            }, {
+                name: 'Status',
+                type: 'TEXT',
+                rules: 'NOT NULL',
             }],
         }, {
             name: 'ItemVariations',
@@ -227,6 +235,24 @@ class Database {
 
             throw new Error(`Error occured while executing SQL query: ${JSON.stringify(query)}`);
         }
+    }
+
+    update(table) {
+        this.sql = `UPDATE ${table}`;
+
+        return this;
+    }
+
+    set(columns) {
+        if (typeof columns === 'object') {
+            this.sql += ' SET' + Object.entries(columns).map(e => ` ${e[0]} = ${e[1]}`).toString();
+        } else if (typeof columns === 'string') {
+            this.sql += ' SET' + columns;
+        }
+
+        console.log(this.sql);
+
+        return this;
     }
 
     join(table, relation, direction) {

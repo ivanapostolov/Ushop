@@ -4,11 +4,12 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Header from '../Header/Header';
 import Home from '../Home/Home';
 import Footer from '../Footer/Footer';
-import Checkout from '../Checkout/Checkout';
+import Basket from '../Basket/Checkout';
 import SignForm from '../SignForm/SignForm';
 import AdminView from '../AdminView/AdminView';
 import Shop from '../Shop/Shop';
-import Product from '../Product/Product'
+import Product from '../Product/Product';
+import Checkout from '../Checkout/Checkout';
 
 class comp extends React.Component {
   constructor(props) {
@@ -30,6 +31,11 @@ function App() {
     <Router>
       <div className="app">
         <Switch>
+          <Route path='/basket'>
+            <Header />
+            <Basket />
+            <Footer />
+          </Route>
           <Route path='/checkout'>
             <Header />
             <Checkout />

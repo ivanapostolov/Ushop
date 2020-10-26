@@ -19,7 +19,7 @@ function Header() {
         <nav id="header" className="header">
             <div className="header__links">
                 <Link to="/">Home</Link>
-                <Link to="/checkout">Basket ({state.basket?.length})</Link>
+                <Link to="/basket">Basket ({state.basket?.length})</Link>
                 {
                     state.user ? <Link to="/sign-in">Logout</Link> : <Link to="/sign-in">Sign in</Link>
                 }

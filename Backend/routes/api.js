@@ -7,7 +7,7 @@ const multer = require('multer');
 const assetsPath = `${__dirname}/../assets/`;
 const upload = multer({ dest: assetsPath });
 const fs = require('fs');
-const { response } = require("express");
+const { response, request } = require("express");
 
 const db = new Database();
 
@@ -192,6 +192,20 @@ router.get('/filters/:categoryid', async (request, response) => {
         console.error(e.message);
 
         response.status(500).json({ error: "Internal server error" });
+    }
+});
+
+router.post('/order', authorize, async (request, response) => {
+    try {
+        for (const value of request.body.products) {
+            db.update('ItemVariations').set({ quantity: `quantity - ${value.quantity}` }).where({ ItemId: value.id }).send();
+        }
+
+        db.insert('Orders', [request.user.email, request.body.details, 'recieved'])
+
+        response.status(200).json({ status: "New order added" });
+    } catch (e) {
+        console.log(e.message);
     }
 });
 
