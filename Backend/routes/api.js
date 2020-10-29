@@ -195,13 +195,33 @@ router.get('/filters/:categoryid', async (request, response) => {
     }
 });
 
+router.get('/orders', async (request, response) => {
+    try {
+        let orders = [];
+
+        orders = await db.select('*').from('Orders').send();
+
+        response.status(200).json({ data: orders });
+    } catch (e) {
+        console.log(e.message);
+
+        response.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 router.post('/order', authorize, async (request, response) => {
     try {
-        for (const value of request.body.products) {
-            db.update('ItemVariations').set({ quantity: `quantity - ${value.quantity}` }).where({ ItemId: value.id }).send();
-        }
+        const products = request.body.products;
 
-        db.insert('Orders', [request.user.email, request.body.details, 'recieved'])
+        const order = await db.insert('Orders', [request.user.email, request.body.details, 'recieved']);
+
+        const orderId = order.rows[0].id;
+
+        for (const value of products) {
+            await db.update('ItemVariations').set(`quantity = quantity - ${value.quantity}`).where({ ...JSON.parse(value.variation), ItemId: value.id }).send();
+
+            await db.insert('OrderProducts', [orderId, value.id, value.quantity]);
+        }
 
         response.status(200).json({ status: "New order added" });
     } catch (e) {

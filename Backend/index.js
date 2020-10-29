@@ -45,8 +45,6 @@ const initialize = async () => {
       await db.createAdmin();
     }
 
-    db.update('Items').set("amount = 15, name = 'new name'");
-
     await db.insert('Categories', ['Shirts']);
     await db.insert('Categories', ['T-Shirts']);
     await db.insert('Categories', ['Tank Tops']);

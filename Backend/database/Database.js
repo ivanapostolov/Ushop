@@ -122,7 +122,7 @@ class Database {
                 rules: 'NOT NULL',
             }],
         }, {
-            name: 'Reservations',
+            name: 'OrderedProducts',
             columns: [{
                 name: 'OrderId',
                 type: 'INT',
@@ -245,12 +245,12 @@ class Database {
 
     set(columns) {
         if (typeof columns === 'object') {
-            this.sql += ' SET' + Object.entries(columns).map(e => ` ${e[0]} = ${e[1]}`).toString();
-        } else if (typeof columns === 'string') {
-            this.sql += ' SET' + columns;
-        }
+            this.sql += ' SET' + Object.entries(columns).map((e, i) => ` ${e[0]} = $${i + this.params.length + 1}`).toString();
 
-        console.log(this.sql);
+            this.params = this.params.concat(Object.values(columns));
+        } else if (typeof columns === 'string') {
+            this.sql += ' SET ' + columns;
+        }
 
         return this;
     }

@@ -107,8 +107,7 @@ class PaypalButton extends React.Component {
             return (
                 <div className="main">
                     <h2>
-                        Congrats! you just paid for that picture. Work a little harder andyou'll be able to afford the car itself{" "}
-                        <span role="img" aria-label="emoji">{" "}😉</span>
+                        Your order is paid
                     </h2>
                 </div>
             );

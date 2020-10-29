@@ -40,7 +40,7 @@ class Product extends React.Component {
                 imageUrl: `${this.context[0].baseUrl}product${this.props.id}.png`,
                 price: this.state.product.price,
                 quantity: this.state.quantity,
-                variation: `Size: ${this.state.size}, Color: ${this.state.color}`
+                variation: JSON.stringify({ size: this.state.size, color: this.state.color })
             }
         });
     }
